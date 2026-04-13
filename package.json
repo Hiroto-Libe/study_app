@@ -1,0 +1,38 @@
+{
+    "name": "study_app",
+    "private": true,
+    "scripts": {
+        "dev": "next dev",
+        "build": "next build",
+        "start": "next start",
+        "lint": "next lint",
+        "test": "vitest"
+    },
+    "dependencies": {
+        "@anthropic-ai/sdk": "^0.88.0",
+        "@supabase/supabase-js": "^2.103.0",
+        "@tailwindcss/typography": "^0.5.9",
+        "canvas-confetti": "^1.6.0",
+        "next": "^15.2.0",
+        "p-limit": "^4.0.0",
+        "react": "^18.3.1",
+        "react-dom": "^18.3.1",
+        "recharts": "^2.8.0",
+        "uuid": "^9.0.0",
+        "zod": "^3.24.2"
+    },
+    "devDependencies": {
+        "@testing-library/jest-dom": "^6.0.3",
+        "@testing-library/react": "^14.0.0",
+        "@types/node": "^20.14.2",
+        "@types/react": "^18.3.3",
+        "@types/react-dom": "^18.3.0",
+        "@types/uuid": "^9.0.2",
+        "autoprefixer": "^10.4.19",
+        "postcss": "^8.4.35",
+        "tailwindcss": "^3.4.5",
+        "tsx": "^4.21.0",
+        "typescript": "^5.6.2",
+        "vitest": "^4.1.4"
+    }
+}
