@@ -1,10 +1,10 @@
 export type Subject = 'japanese' | 'math';
 export type Format = 'reading' | 'writing' | 'stroke' | 'choice' | 'calculation' | 'sentence';
-export type InputType = 'voice' | 'photo' | 'stroke' | 'choice' | 'keypad';
+export type InputType = 'text' | 'photo' | 'stroke' | 'choice' | 'keypad';
 export type Source = 'api_generated' | 'seed' | 'manual';
 export type WeakType = 'reading' | 'writing' | 'stroke' | 'meaning' | 'calculation';
 export type CharacterStage = 'egg' | 'baby' | 'child' | 'teen' | 'adult';
-export type Mode = 'voice' | 'stroke' | 'choice' | 'number' | 'study';
+export type Mode = 'reading' | 'stroke' | 'choice' | 'number' | 'study';
 
 export type Question = {
     id: string;

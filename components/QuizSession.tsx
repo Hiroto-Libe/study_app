@@ -3,14 +3,14 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { AnswerRequest, AnswerResponse, Format, Mode, Question } from '@/types';
-import VoiceInput from './VoiceInput';
+import TextInput from './TextInput';
 import StrokeAnimation from './StrokeAnimation';
 
 const sampleQuestion: Question = {
     id: 'sample-question-1',
     subject: 'japanese',
     format: 'reading',
-    input_type: 'voice',
+    input_type: 'text',
     body: '「りんご」が3こあります。2こ食べると、いくつ残りますか？',
     answer: '1',
     hint: '3 から 2 を引いてみよう。',
@@ -34,6 +34,9 @@ export default function QuizSession({
     const [isLoading, setIsLoading] = useState(true);
     const [fetchError, setFetchError] = useState<string | null>(null);
     const [result, setResult] = useState<AnswerResponse | null>(null);
+    const [lastAnswerCorrect, setLastAnswerCorrect] = useState<boolean | null>(null);
+    const [recognizedText, setRecognizedText] = useState<string | null>(null);
+    const [lastCorrectAnswer, setLastCorrectAnswer] = useState<string | null>(null);
 
     const fetchQuestion = useCallback(async (history: string[]): Promise<Question> => {
         const searchParams = new URLSearchParams({
@@ -95,26 +98,20 @@ export default function QuizSession({
         try {
             const data = await submitAnswer(isCorrect);
             setResult(data);
+            setLastAnswerCorrect(isCorrect);
+            setLastCorrectAnswer(question.answer);
             setCurrentIndex((prev) => Math.min(prev + 1, questions.length - 1));
         } catch (error) {
             setFetchError('回答の送信に失敗しました。');
         }
     };
 
-    const handleVoiceRecognize = useCallback(async (value: string) => {
+    const handleTextAnswer = useCallback((value: string) => {
         const normalize = (text: string) => text.replace(/\s+/g, '').trim().toLowerCase();
         const isCorrect = normalize(value) === normalize(question.answer);
-        await onAnswer(isCorrect);
+        setRecognizedText(value);
+        void onAnswer(isCorrect);
     }, [question.answer]);
-
-    const onVoiceError = useCallback((message: string) => {
-        setFetchError(message);
-    }, []);
-
-    const voiceSection = useMemo(() => {
-        if (format !== 'reading') return null;
-        return <VoiceInput onRecognize={handleVoiceRecognize} onError={onVoiceError} />;
-    }, [format, handleVoiceRecognize, onVoiceError]);
 
     const strokePaths = useMemo(() => {
         if (!question.kanji) return ['M10 20 h100'];
@@ -129,7 +126,7 @@ export default function QuizSession({
         <section className="space-y-6 rounded-3xl border border-slate-200 bg-white p-8 shadow-sm">
             <div>
                 <p className="text-slate-500">{format === 'calculation' ? '算数' : '国語'} / {mode}</p>
-                <h2 className="text-3xl font-bold text-slate-900">{format === 'reading' ? '音声問題' : format === 'stroke' ? '書き順問題' : '選択問題'}</h2>
+                <h2 className="text-3xl font-bold text-slate-900">{format === 'reading' ? '読み問題' : format === 'stroke' ? '書き順問題' : '選択問題'}</h2>
             </div>
             {isLoading ? (
                 <div className="rounded-3xl bg-slate-50 p-8 text-center text-slate-500">問題を読み込み中です...</div>
@@ -158,11 +155,15 @@ export default function QuizSession({
                                 </button>
                             ))}
                         </div>
+                    ) : format === 'reading' ? (
+                        /* 読みモード: テキスト入力（PC=キーボード、スマホ=文字入力） */
+                        <TextInput onSubmit={handleTextAnswer} />
                     ) : (
+                        /* 算数・その他: 正解/不正解ボタン（キーパッド未実装のため暫定） */
                         <div className="grid gap-4 sm:grid-cols-2">
                             <button
                                 type="button"
-                                className="rounded-3xl bg-brand-600 px-6 py-4 text-white hover:bg-brand-700"
+                                className="rounded-3xl bg-indigo-600 px-6 py-4 text-white hover:bg-indigo-700"
                                 onClick={() => void onAnswer(true)}
                             >
                                 正解
@@ -177,14 +178,22 @@ export default function QuizSession({
                         </div>
                     )}
 
-                    {voiceSection}
-
-                    {result && (
-                        <div className="rounded-3xl bg-brand-50 p-6 text-slate-900">
-                            <p className="font-semibold">結果</p>
-                            <p className="mt-2">獲得XP: {result.xp_earned}</p>
-                            <p>コイン: {result.coins_earned}</p>
-                            <p>レベルアップ: {result.level_up ? 'はい' : 'いいえ'}</p>
+                    {result && lastAnswerCorrect !== null && (
+                        <div className={`rounded-3xl p-6 ${lastAnswerCorrect ? 'bg-emerald-50 border border-emerald-200' : 'bg-rose-50 border border-rose-200'}`}>
+                            <p className={`text-2xl font-bold ${lastAnswerCorrect ? 'text-emerald-700' : 'text-rose-700'}`}>
+                                {lastAnswerCorrect ? '正解！' : '不正解'}
+                            </p>
+                            {recognizedText !== null && (
+                                <p className="mt-2 text-slate-700">あなたの答え: <span className="font-medium">{recognizedText}</span></p>
+                            )}
+                            {!lastAnswerCorrect && lastCorrectAnswer && (
+                                <p className="mt-1 text-slate-700">正しい答え: <span className="font-medium">{lastCorrectAnswer}</span></p>
+                            )}
+                            <div className="mt-3 border-t border-slate-200 pt-3 text-sm text-slate-600">
+                                <p>獲得XP: {result.xp_earned}</p>
+                                <p>コイン: {result.coins_earned}</p>
+                                {result.level_up && <p className="font-semibold text-indigo-600">レベルアップ！</p>}
+                            </div>
                         </div>
                     )}
                 </div>

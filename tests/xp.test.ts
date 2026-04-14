@@ -21,7 +21,7 @@ describe('calcXp', () => {
             calcXp({
                 is_correct: true,
                 priority_score: 0.5,
-                input_type: 'voice',
+                input_type: 'text',
                 consecutive_correct: 2,
                 is_daily_first: false,
                 used_hint: false
@@ -34,7 +34,7 @@ describe('calcXp', () => {
             calcXp({
                 is_correct: false,
                 priority_score: 0.8,
-                input_type: 'voice',
+                input_type: 'text',
                 consecutive_correct: 5,
                 is_daily_first: true,
                 used_hint: false

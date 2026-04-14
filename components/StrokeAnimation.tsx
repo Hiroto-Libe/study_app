@@ -45,7 +45,7 @@ export default function StrokeAnimation({ paths, correctIndex, onAnswer }: Strok
             <div className="grid gap-4 md:grid-cols-2">
                 <button
                     type="button"
-                    className="rounded-3xl border border-brand-200 bg-brand-50 p-4 text-left hover:border-brand-300"
+                    className="rounded-3xl border border-indigo-200 bg-indigo-50 p-4 text-left hover:border-indigo-300"
                     onClick={() => handleChoice('A')}
                 >
                     <div className="flex items-center justify-between">

@@ -1,0 +1,129 @@
+=========================================================
+ 学習アプリ 変更記録 v1.2 — 読み問題の入力方式変更
+ 作成日: 2026-04-14
+=========================================================
+
+■ 変更の背景・目的
+-------------------------------------------------------
+音声認識（Web Speech API）を使った「音声問題」は、
+正解しても不正解判定になるケースが多く、子供の学習体験を損なう。
+ブラウザ実装の差異や環境（静音室以外）への依存が大きいため廃止。
+
+代替として、漢字の読み問題は「テキスト入力」方式に変更する。
+・PC   : キーボード入力（ひらがな変換）
+・スマホ: ソフトキーボード文字入力
+これにより、誤判定のない正確な正誤チェックが実現できる。
+
+=========================================================
+■ 要件定義 変更点（v1.1 → v1.2）
+=========================================================
+
+変更前:
+  機能要件 F-03: 音声入力による漢字読みクイズ
+    - Web Speech API を使用しマイク入力で回答
+    - 入力タイプ: voice
+
+変更後:
+  機能要件 F-03: テキスト入力による漢字読みクイズ
+    - ひらがな入力フィールドで回答（Submit ボタンまたは Enter キー）
+    - PC ではキーボード、スマホでは文字入力（ソフトキーボード）を利用
+    - 入力タイプ: text
+
+廃止要件:
+  - Web Speech API / マイク権限要求
+  - 音声認識エラー処理（not_supported, permission_denied, no_speech など）
+
+=========================================================
+■ 仕様検討 変更点
+=========================================================
+
+入力方式比較:
+  音声認識（廃止）     テキスト入力（採用）
+  ─────────────────   ────────────────────
+  誤認識リスク高       入力値がそのまま判定
+  ブラウザ依存         全ブラウザ共通動作
+  マイク権限必要       権限不要
+  子供が発音しにくい   ひらがな入力で確実
+
+正誤判定仕様:
+  - ユーザー入力と answer を正規化して比較
+  - 正規化: 前後空白除去、連続空白を除去、小文字化
+  - ひらがな・カタカナの区別は行わない（今後の拡張余地）
+
+UI 仕様:
+  - 入力フィールド（placeholder: "ひらがなで入力"）
+  - 「答える」ボタン（入力が空のとき disabled）
+  - 回答後: 正解（緑）/ 不正解（赤）を大きく表示
+  - 不正解時: 正しい答えを表示
+  - 入力フィールドは回答後にリセット・フォーカスを維持（次の問題へ）
+
+=========================================================
+■ 詳細設計 変更点
+=========================================================
+
+1. DB スキーマ（questions テーブル）
+   変更前: input_type CHECK (... 'voice' ...)
+   変更後: input_type CHECK (... 'text' ...)
+   対応マイグレーション: migrations/003_reading_text_input.sql
+
+2. 型定義（types/index.ts）
+   変更前: InputType = 'voice' | 'photo' | 'stroke' | 'choice' | 'keypad'
+   変更後: InputType = 'text'  | 'photo' | 'stroke' | 'choice' | 'keypad'
+
+   変更前: Mode = 'voice' | 'stroke' | 'choice' | 'number' | 'study'
+   変更後: Mode = 'reading'| 'stroke' | 'choice' | 'number' | 'study'
+
+3. API エンドポイント
+   GET /api/questions/next
+     inputTypeForMode: { reading: 'text', study: 'text', ... }
+
+   POST /api/study/answer
+     Zod バリデーション: input_type z.enum(['text','photo','stroke','choice','keypad'])
+
+4. コンポーネント構成
+   削除: components/VoiceInput.tsx
+   削除: lib/speech.ts
+   新設: components/TextInput.tsx
+     Props: { onSubmit: (value: string) => void }
+     内部状態: value (string)
+     フォーム送信で onSubmit を呼び、入力をリセット
+
+   変更: components/QuizSession.tsx
+     - VoiceInput → TextInput に差し替え
+     - handleVoiceRecognize → handleTextAnswer に改名
+     - onVoiceError・voiceSection を削除
+     - タイトル: "音声問題" → "読み問題"
+
+5. ページルーティング
+   新設: /learn/quiz/reading/page.tsx  （ReadingQuizPage）
+   変更: /learn/quiz/voice/page.tsx    → /learn/quiz/reading へリダイレクト
+   変更: /learn/page.tsx のリンク href="/learn/quiz/reading"
+
+=========================================================
+■ 影響範囲まとめ
+=========================================================
+
+ファイル                                     変更種別
+─────────────────────────────────────────   ────────
+migrations/002_seed_questions.sql            修正（voice→text）
+migrations/003_reading_text_input.sql        新規
+types/index.ts                               修正
+app/api/questions/next/route.ts              修正
+app/api/study/answer/route.ts                修正
+components/TextInput.tsx                     新規
+components/QuizSession.tsx                   修正
+components/VoiceInput.tsx                    削除
+lib/speech.ts                                削除
+app/learn/quiz/reading/page.tsx              新規
+app/learn/quiz/voice/page.tsx                修正（リダイレクト）
+app/learn/page.tsx                           修正
+
+=========================================================
+■ DB 反映手順（Supabase SQL Editor で実行）
+=========================================================
+
+Step 1: migrations/003_reading_text_input.sql を実行
+  → 既存の voice 問題が text に更新され、CHECK 制約が更新される
+
+Step 2（任意）: seeds を再投入する場合は 002_seed_questions.sql を実行
+  → ON CONFLICT DO NOTHING のため既存データへの影響なし

@@ -72,7 +72,7 @@ export default function ParentHomePage() {
             )}
 
             <div className="mt-8 flex flex-col gap-4 sm:flex-row">
-                <Link href="/parent/settings" className="rounded-3xl bg-brand-600 px-6 py-4 text-center text-white shadow hover:bg-brand-700">
+                <Link href="/parent/settings" className="rounded-3xl bg-indigo-600 px-6 py-4 text-center text-white shadow hover:bg-indigo-700">
                     設定を編集する
                 </Link>
             </div>

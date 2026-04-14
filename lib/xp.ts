@@ -18,7 +18,7 @@ export function calcXp(input: XpInput): number {
     if (!input.is_correct) return 0;
     let xp = 10;
     if (input.priority_score > 0.6) xp += 8;
-    if (input.input_type === 'voice' || input.input_type === 'stroke') xp += 2;
+    if (input.input_type === 'text' || input.input_type === 'stroke') xp += 2;
     const streak = input.consecutive_correct + 1;
     if (streak >= 3) xp += Math.min((streak - 2) * 5, 15);
     if (input.is_daily_first) xp += 20;

@@ -8,7 +8,7 @@ import { updateQuestionAvgCorrect } from '@/lib/questions';
 const BodySchema = z.object({
     question_id: z.string().min(1),
     is_correct: z.boolean(),
-    input_type: z.enum(['voice', 'photo', 'stroke', 'choice', 'keypad']),
+    input_type: z.enum(['text', 'photo', 'stroke', 'choice', 'keypad']),
     used_hint: z.boolean(),
     session_id: z.string().min(1)
 });

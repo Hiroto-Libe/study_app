@@ -7,6 +7,7 @@ export type GenerateParams = {
     subject: 'japanese' | 'math';
     format: Format;
     input_type: InputType;
+    grade?: number;
 };
 
 const fallbackQuestion: GeneratedQuestion = {
@@ -15,12 +16,12 @@ const fallbackQuestion: GeneratedQuestion = {
     hint: '数を数えよう',
     unit: 'かず',
     grade: 4,
-    input_type: 'voice',
+    input_type: 'text',
     kanji: null
 };
 
 const validInputTypes: Record<Format, InputType> = {
-    reading: 'voice',
+    reading: 'text',
     writing: 'photo',
     stroke: 'stroke',
     choice: 'choice',
@@ -53,13 +54,14 @@ function buildGenerationPrompt(params: GenerateParams): string {
     const subjectLabel = params.subject === 'japanese' ? '国語' : '算数';
     const inputType = validInputTypes[params.format];
 
+    const gradeLabel = params.grade ? `小学${params.grade}年生` : '小学生';
     return `あなたは小学生向けの${subjectLabel}の学習問題を作成するAIです。\n` +
         `以下の要件に従って、1つの問題をJSON形式で出力してください。\n\n` +
         `要件:\n` +
         `- subject: ${params.subject}\n` +
         `- format: ${params.format}\n` +
         `- input_type: ${inputType}\n` +
-        `- grade: 1〜6の整数\n` +
+        `- grade: ${params.grade ?? '1〜6'}（${gradeLabel}レベルの問題を作成すること）\n` +
         `- body: 子どもが理解しやすい日本語の問題文\n` +
         `- answer: ${params.format === 'reading' ? '読み仮名（ひらがな）で答えを返すこと' : '正しい答えを返すこと'}\n` +
         `- hint: 問題に役立つヒント。不要であれば null を指定\n` +

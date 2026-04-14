@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createAdminSb, getLearnerId } from '@/lib/supabase';
+import { createAdminSb, getLearner } from '@/lib/supabase';
 import { generateQuestion } from '@/lib/claude';
 import { buildQueryKey } from '@/lib/questions';
 import { Format, InputType, Question, Subject } from '@/types';
@@ -13,11 +13,11 @@ const QuerySchema = z.object({
 });
 
 const inputTypeForMode: Record<string, InputType> = {
-    voice: 'voice',
+    reading: 'text',
     stroke: 'stroke',
     choice: 'choice',
     number: 'keypad',
-    study: 'voice'
+    study: 'text'
 };
 
 export async function GET(req: NextRequest) {
@@ -32,8 +32,8 @@ export async function GET(req: NextRequest) {
     }
 
     const { subject, format, session_history } = parsed.data;
-    const mode = searchParams.get('mode') ?? 'voice';
-    const input_type: InputType = inputTypeForMode[mode] ?? 'voice';
+    const mode = searchParams.get('mode') ?? 'reading';
+    const input_type: InputType = inputTypeForMode[mode] ?? 'text';
     const queryKey = buildQueryKey(subject, format, input_type);
     const excludeIds = session_history ? session_history.split(',').filter(Boolean) : [];
     const safeHistory = excludeIds.length > 0
@@ -42,16 +42,19 @@ export async function GET(req: NextRequest) {
 
     try {
         const sb = createAdminSb();
-        const learnerId = await getLearnerId();
+        const { grade: learnerGrade } = await getLearner();
 
-        // 1) query_key + avg_correct でキャッシュ済み問題を優先取得
+        // 1) query_key + 学年フィルタ + avg_correct でキャッシュ済み問題を優先取得
+        // 学習者の学年以下の問題を対象に、学年が高い（難しい）順→出題回数が少ない順で取得
         let cacheQuery = sb
             .from('questions')
             .select('*')
             .eq('query_key', queryKey)
             .eq('source', 'api_generated')
-            .or('avg_correct.is.null,avg_correct.gte.0.3') // 正解率が低すぎる問題を除外
-            .order('use_count', { ascending: true })        // 出題回数が少ない順
+            .lte('grade', learnerGrade)
+            .or('avg_correct.is.null,avg_correct.gte.0.3')
+            .order('grade', { ascending: false })
+            .order('use_count', { ascending: true })
             .limit(1);
 
         if (safeHistory) {
@@ -67,13 +70,16 @@ export async function GET(req: NextRequest) {
             return NextResponse.json(cached as Question);
         }
 
-        // 2) subject + format + input_type でシードデータにフォールバック
+        // 2) シードデータから学年フィルタ付きでフォールバック
+        // まず学習者の学年ちょうどを探し、なければ学年以下を探す
         let fallbackQuery = sb
             .from('questions')
             .select('*')
             .eq('subject', subject)
             .eq('format', format)
             .eq('input_type', input_type)
+            .lte('grade', learnerGrade)
+            .order('grade', { ascending: false })
             .order('use_count', { ascending: true })
             .limit(1);
 
@@ -86,11 +92,12 @@ export async function GET(req: NextRequest) {
             return NextResponse.json(fallback as Question);
         }
 
-        // 3) DB に問題がなければ Claude で生成して保存
+        // 3) DB に問題がなければ Claude で生成して保存（学習者の学年を指定）
         const generated = await generateQuestion({
             subject: subject as Subject,
             format: format as Format,
-            input_type
+            input_type,
+            grade: learnerGrade
         });
 
         const question: Question = {
@@ -107,10 +114,11 @@ export async function GET(req: NextRequest) {
         };
 
         // 生成した問題を DB に保存（失敗しても返答は続ける）
-        await sb
+        // query_key は GENERATED ALWAYS AS 列のため INSERT では省略する
+        const { error: insertErr } = await sb
             .from('questions')
-            .insert({ ...question, source: 'api_generated', query_key: queryKey, use_count: 0 })
-            .catch((err: Error) => console.error('question_insert_failed', err));
+            .insert({ ...question, source: 'api_generated', use_count: 0 });
+        if (insertErr) console.error('question_insert_failed', insertErr);
 
         return NextResponse.json(question);
     } catch (error) {
