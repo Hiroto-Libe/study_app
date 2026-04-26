@@ -8,7 +8,14 @@
       "Bash(curl -s \"http://localhost:3000/api/questions/next?subject=japanese&format=reading&mode=voice\")",
       "Bash(curl -s \"http://localhost:3000/api/questions/next?subject=japanese&format=stroke&mode=stroke\")",
       "Bash(curl -s \"http://localhost:3000/api/questions/next?subject=japanese&format=reading&mode=voice\" -v)",
-      "Bash(npx vitest:*)"
+      "Bash(npx vitest:*)",
+      "Bash(npx tsc *)",
+      "WebFetch(domain:blog.libmo.jp)",
+      "WebFetch(domain:coeteco.jp)",
+      "WebFetch(domain:app-liv.jp)",
+      "WebFetch(domain:jyukuerabi.com)",
+      "WebFetch(domain:cheers-school.com)",
+      "WebFetch(domain:startoo.co)"
     ]
   }
 }

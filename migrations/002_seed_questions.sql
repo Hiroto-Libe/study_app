@@ -11,9 +11,9 @@ INSERT INTO questions (subject, format, input_type, body, answer, hint, unit, gr
 ('japanese', 'reading', 'text', '「水」の読み方は何ですか？', 'みず', NULL, '漢字', 1, '水', 'seed'),
 
 -- 国語・選択問題（choice）
-('japanese', 'choice', 'choice', '「犬」の意味として正しいものはどれですか？', '動物の一種', 'いぬは動物です', '言葉', 2, '犬', 'seed'),
-('japanese', 'choice', 'choice', '「大きい」の反対語はどれですか？', '小さい', '大↔小', '言葉', 2, '', 'seed'),
-('japanese', 'choice', 'choice', '「速い」の反対語はどれですか？', '遅い', '速↔遅', '言葉', 2, '', 'seed'),
+('japanese', 'choice', 'choice', '「犬」の意味として正しいものはどれですか？', '動物の一種', NULL, '言葉', 2, '犬', 'seed'),
+('japanese', 'choice', 'choice', '「大きい」の反対語はどれですか？', '小さい', NULL, '言葉', 2, '', 'seed'),
+('japanese', 'choice', 'choice', '「速い」の反対語はどれですか？', '遅い', NULL, '言葉', 2, '', 'seed'),
 
 -- 国語・書き順問題（stroke）
 ('japanese', 'stroke', 'stroke', '「日」の正しい書き順はどちらですか？', '正しい順', NULL, '漢字', 1, '日', 'seed'),
@@ -29,7 +29,7 @@ INSERT INTO questions (subject, format, input_type, body, answer, hint, unit, gr
 
 -- 国語・選択問題の選択肢を設定
 -- (choice 問題は options 列にダミーを設定)
-('japanese', 'choice', 'choice', '「春」の季節として正しいのはどれですか？', '春', '桜が咲く季節です', '季節', 2, '春', 'seed')
+('japanese', 'choice', 'choice', '「春」の季節として正しいのはどれですか？', '春', NULL, '季節', 2, '春', 'seed')
 
 ON CONFLICT DO NOTHING;
 

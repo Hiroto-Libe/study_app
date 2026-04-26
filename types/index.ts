@@ -19,6 +19,9 @@ export type Question = {
     kanji?: string | null;
     options?: string[];
     correct_index?: 0 | 1;
+    paths_a?: string[] | null;
+    paths_b?: string[] | null;
+    stroke_bg?: string[] | null;
 };
 
 export type AnswerResult = {

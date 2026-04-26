@@ -24,19 +24,19 @@ INSERT INTO questions (subject, format, input_type, body, answer, hint, unit, gr
 ('japanese', 'reading', 'text', '「度」の読み方は何ですか？', 'ど', NULL, '漢字', 3, '度', 'seed'),
 ('japanese', 'reading', 'text', '「速」の読み方は何ですか？', 'そく', NULL, '漢字', 3, '速', 'seed'),
 ('japanese', 'reading', 'text', '「重」の読み方は何ですか？', 'じゅう', NULL, '漢字', 3, '重', 'seed'),
-('japanese', 'reading', 'text', '「軽」の読み方は何ですか？', 'かる', '「かるい」の訓読み', '漢字', 3, '軽', 'seed'),
-('japanese', 'reading', 'text', '「深」の読み方は何ですか？', 'ふか', '「ふかい」の訓読み', '漢字', 3, '深', 'seed'),
+('japanese', 'reading', 'text', '「軽い」の「軽」の読み方は何ですか？', 'かる', NULL, '漢字', 3, '軽', 'seed'),
+('japanese', 'reading', 'text', '「深い」の「深」の読み方は何ですか？', 'ふか', NULL, '漢字', 3, '深', 'seed'),
 ('japanese', 'reading', 'text', '「様」の読み方は何ですか？', 'さま', NULL, '漢字', 3, '様', 'seed'),
 ('japanese', 'reading', 'text', '「湖」の読み方は何ですか？', 'みずうみ', NULL, '漢字', 3, '湖', 'seed'),
 
 -- 小4
 ('japanese', 'reading', 'text', '「熱」の読み方は何ですか？', 'ねつ', NULL, '漢字', 4, '熱', 'seed'),
 ('japanese', 'reading', 'text', '「冷」の読み方は何ですか？', 'れい', NULL, '漢字', 4, '冷', 'seed'),
-('japanese', 'reading', 'text', '「静」の読み方は何ですか？', 'しず', '「しずか」の訓読み', '漢字', 4, '静', 'seed'),
+('japanese', 'reading', 'text', '「静か」の「静」の読み方は何ですか？', 'しず', NULL, '漢字', 4, '静', 'seed'),
 ('japanese', 'reading', 'text', '「達」の読み方は何ですか？', 'たつ', NULL, '漢字', 4, '達', 'seed'),
 ('japanese', 'reading', 'text', '「変」の読み方は何ですか？', 'へん', NULL, '漢字', 4, '変', 'seed'),
-('japanese', 'reading', 'text', '「努」の読み方は何ですか？', 'ど', '「どりょく」の最初の字', '漢字', 4, '努', 'seed'),
-('japanese', 'reading', 'text', '「望」の読み方は何ですか？', 'のぞ', '「のぞむ」の訓読み', '漢字', 4, '望', 'seed'),
+('japanese', 'reading', 'text', '「努力」の「努」の読み方は何ですか？', 'ど', NULL, '漢字', 4, '努', 'seed'),
+('japanese', 'reading', 'text', '「望む」の「望」の読み方は何ですか？', 'のぞ', NULL, '漢字', 4, '望', 'seed'),
 ('japanese', 'reading', 'text', '「機」の読み方は何ですか？', 'き', NULL, '漢字', 4, '機', 'seed'),
 ('japanese', 'reading', 'text', '「産」の読み方は何ですか？', 'さん', NULL, '漢字', 4, '産', 'seed'),
 ('japanese', 'reading', 'text', '「典」の読み方は何ですか？', 'てん', NULL, '漢字', 4, '典', 'seed'),
@@ -82,11 +82,11 @@ INSERT INTO questions (subject, format, input_type, body, answer, hint, unit, gr
 ('math', 'calculation', 'keypad', '96 ÷ 4 = ?', '24', '4ずつ分けると何個？', '割り算', 3, '', 'seed'),
 
 -- 小4
-('math', 'calculation', 'keypad', '1234 + 5678 = ?', '6912', '位をそろえて足そう', '足し算', 4, '', 'seed'),
-('math', 'calculation', 'keypad', '3000 - 1428 = ?', '1572', '繰り下がりに注意', '引き算', 4, '', 'seed'),
-('math', 'calculation', 'keypad', '32 × 15 = ?', '480', '32×10=320、32×5=160', '掛け算', 4, '', 'seed'),
-('math', 'calculation', 'keypad', '144 ÷ 12 = ?', '12', '12の段を使おう', '割り算', 4, '', 'seed'),
-('math', 'calculation', 'keypad', '256 ÷ 16 = ?', '16', '16×16=256', '割り算', 4, '', 'seed'),
+('math', 'calculation', 'keypad', '345 + 278 = ?', '623', '百の位・十の位・一の位に分けて足そう', '足し算', 4, '', 'seed'),
+('math', 'calculation', 'keypad', '702 - 184 = ?', '518', '繰り下がりに注意して位をそろえよう', '引き算', 4, '', 'seed'),
+('math', 'calculation', 'keypad', '36 × 4 = ?', '144', '30×4 と 6×4 に分けて考えよう', '掛け算', 4, '', 'seed'),
+('math', 'calculation', 'keypad', '2.3 + 1.4 = ?', '3.7', '小数点をそろえて足そう', '小数', 4, '', 'seed'),
+('math', 'calculation', 'keypad', '5.6 - 2.1 = ?', '3.5', '小数点をそろえて引こう', '小数', 4, '', 'seed'),
 
 -- 小5
 ('math', 'calculation', 'keypad', '1.5 + 2.7 = ?', '4.2', '小数点をそろえて足そう', '小数', 5, '', 'seed'),

@@ -26,7 +26,7 @@ describe('calcXp', () => {
                 is_daily_first: false,
                 used_hint: false
             })
-        ).toBeGreaterThanOrEqual(15);
+        ).toBe(17);
     });
 
     it('returns 0 when answer is incorrect', () => {
@@ -40,5 +40,18 @@ describe('calcXp', () => {
                 used_hint: false
             })
         ).toBe(0);
+    });
+
+    it('halves the earned xp when a hint was used', () => {
+        expect(
+            calcXp({
+                is_correct: true,
+                priority_score: 0.8,
+                input_type: 'stroke',
+                consecutive_correct: 0,
+                is_daily_first: true,
+                used_hint: true
+            })
+        ).toBe(20);
     });
 });

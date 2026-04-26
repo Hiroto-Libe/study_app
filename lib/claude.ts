@@ -8,12 +8,13 @@ export type GenerateParams = {
     format: Format;
     input_type: InputType;
     grade?: number;
+    prompt_note?: string;
 };
 
 const fallbackQuestion: GeneratedQuestion = {
     body: 'りんごを何個買いましたか？',
     answer: 'りんごは3こです',
-    hint: '数を数えよう',
+    hint: null,
     unit: 'かず',
     grade: 4,
     input_type: 'text',
@@ -36,10 +37,17 @@ export function extractJson(text: string): unknown {
     return JSON.parse(text.slice(start, end + 1));
 }
 
+function isBareSingleKanjiReadingPrompt(body: string): boolean {
+    return /^「[^」]」の(読み方|よみかた|よみ)は何ですか[？?]?$/.test(body.trim());
+}
+
 export function validateQuestion(raw: unknown, params: GenerateParams): GeneratedQuestion {
     const parsed = GeneratedQuestionSchema.parse(raw);
     if (params.format === 'reading' && !/^[ぁ-んー]+$/.test(parsed.answer)) {
         throw new Error('answer_not_hiragana');
+    }
+    if (params.format === 'reading' && isBareSingleKanjiReadingPrompt(parsed.body)) {
+        throw new Error('ambiguous_single_kanji_prompt');
     }
     if (params.format === 'reading' && parsed.body.includes(parsed.answer)) {
         throw new Error('answer_in_body');
@@ -64,7 +72,8 @@ function buildGenerationPrompt(params: GenerateParams): string {
         `- grade: ${params.grade ?? '1〜6'}（${gradeLabel}レベルの問題を作成すること）\n` +
         `- body: 子どもが理解しやすい日本語の問題文\n` +
         `- answer: ${params.format === 'reading' ? '読み仮名（ひらがな）で答えを返すこと' : '正しい答えを返すこと'}\n` +
-        `- hint: 問題に役立つヒント。不要であれば null を指定\n` +
+        `${params.format === 'reading' ? '- 読み問題では、漢字1文字だけをそのまま出さず、「静か」の「静」や「努力」の「努」のように、語の中での読みを問うこと\n' : ''}` +
+        `${params.prompt_note ? `- 追加条件: ${params.prompt_note}\n` : ''}` +
         `- unit: 学習の単元やカテゴリ（例: ことば、かず、漢字）\n` +
         `- kanji: 該当する漢字1文字、または該当がなければ null\n\n` +
         `出力は必ずJSONオブジェクト1つだけにしてください。バッククォートやマークダウンは含めないでください。\n\n` +
@@ -87,7 +96,7 @@ export async function generateQuestion(params: GenerateParams): Promise<Generate
     try {
         const client = new Anthropic({ apiKey: key });
         const response = await client.messages.create({
-            model: 'claude-3-5-haiku-20241022',
+            model: 'claude-haiku-4-5-20251001',
             max_tokens: 512,
             messages: [{ role: 'user', content: buildGenerationPrompt(params) }]
         });
