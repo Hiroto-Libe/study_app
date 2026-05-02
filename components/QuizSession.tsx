@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { AnswerRequest, AnswerResponse, Format, Mode, Question } from '@/types';
 import TextInput from './TextInput';
+import NumberKeypad from './NumberKeypad';
 import {
     fetchInitialQuestions as fetchInitialQuestionsFromApi,
     fetchQuestion as fetchQuestionFromApi,
@@ -43,6 +44,7 @@ function CelebrationOverlay() {
 const subjectConfig: Record<string, { gradient: string; emoji: string; label: string }> = {
     'japanese-reading':  { gradient: 'from-violet-500 to-blue-500',   emoji: '📖', label: '読み問題' },
     'japanese-choice':   { gradient: 'from-emerald-500 to-teal-400',  emoji: '✏️', label: '選択問題' },
+    'japanese-writing':  { gradient: 'from-pink-500 to-rose-400',     emoji: '🖊️', label: '書き取り' },
     'math-calculation':  { gradient: 'from-orange-400 to-rose-500',   emoji: '🔢', label: '算数問題' },
 };
 
@@ -244,15 +246,26 @@ export default function QuizSession({
                                         </button>
                                     ))}
                                 </div>
+                            ) : format === 'writing' ? (
+                                <div className="grid gap-3">
+                                    {(question.options ?? []).map((option, index) => (
+                                        <button
+                                            key={option}
+                                            type="button"
+                                            className="rounded-3xl border-2 border-slate-200 bg-white px-5 py-5 text-2xl font-bold text-slate-800 hover:border-pink-400 hover:bg-pink-50 hover:scale-[1.01] active:scale-95 transition-all shadow-sm"
+                                            onClick={() => void onAnswer(index === (question.correct_index ?? 0))}
+                                        >
+                                            {option}
+                                        </button>
+                                    ))}
+                                </div>
                             ) : format === 'reading' ? (
                                 <TextInput onSubmit={handleTextAnswer} />
                             ) : format === 'calculation' ? (
-                                <TextInput
+                                <NumberKeypad
                                     onSubmit={handleTextAnswer}
-                                    title="こたえを入力"
-                                    description="すうじでこたえを入れて「こたえる」をおしてね！"
-                                    placeholder="こたえを入力"
-                                    inputMode="decimal"
+                                    title="こたえを入力してね"
+                                    description="すうじのボタンをおしてこたえてね！"
                                 />
                             ) : (
                                 <div className="grid gap-3 sm:grid-cols-2">
@@ -288,9 +301,10 @@ export default function QuizSession({
                                 )}
 
                                 {recognizedText !== null && (
-                                    <p className="text-center text-sm text-slate-500 mb-3">
-                                        あなたのこたえ: <span className="font-bold text-slate-700">{recognizedText}</span>
-                                    </p>
+                                    <div className="text-center mb-3">
+                                        <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">あなたのこたえ</p>
+                                        <p className="text-3xl font-extrabold text-slate-700">{recognizedText}</p>
+                                    </div>
                                 )}
 
                                 {/* XP・コイン */}

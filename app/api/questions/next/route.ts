@@ -19,7 +19,8 @@ const inputTypeForMode: Record<string, InputType> = {
     stroke: 'stroke',
     choice: 'choice',
     number: 'keypad',
-    study: 'text'
+    study: 'text',
+    writing: 'choice'
 };
 
 export async function GET(req: NextRequest) {
@@ -59,7 +60,7 @@ export async function GET(req: NextRequest) {
                 hint: null,
                 unit: generated.unit,
                 grade: generated.grade,
-                kanji: null
+                kanji: ''
             };
             const { error: insertErr } = await sb
                 .from('questions')

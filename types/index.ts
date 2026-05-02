@@ -4,7 +4,7 @@ export type InputType = 'text' | 'photo' | 'stroke' | 'choice' | 'keypad';
 export type Source = 'api_generated' | 'seed' | 'manual';
 export type WeakType = 'reading' | 'writing' | 'stroke' | 'meaning' | 'calculation';
 export type CharacterStage = 'egg' | 'baby' | 'child' | 'teen' | 'adult';
-export type Mode = 'reading' | 'stroke' | 'choice' | 'number' | 'study';
+export type Mode = 'reading' | 'stroke' | 'choice' | 'number' | 'study' | 'writing';
 
 export type Question = {
     id: string;
@@ -18,7 +18,7 @@ export type Question = {
     grade: number;
     kanji?: string | null;
     options?: string[];
-    correct_index?: 0 | 1;
+    correct_index?: 0 | 1 | 2 | 3;
     paths_a?: string[] | null;
     paths_b?: string[] | null;
     stroke_bg?: string[] | null;
